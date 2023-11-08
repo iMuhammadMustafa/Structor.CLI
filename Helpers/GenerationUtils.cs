@@ -13,4 +13,11 @@ public static class GenerationUtils
         var slnPath = Path.Combine(path, newName, $"{Consts.SOLUTION_NAME}.sln");
         FilesUtils.RenameFile(slnPath, newName, Consts.SOLUTION_NAME);
     }
+
+
+    public static void UnzipFeatureTemplate(string featureFolder, string featureName)
+    {
+        FilesUtils.UnzipFile(featureFolder, FilesAndFolders.FEATURE_TEMPLATE_ZIP_PATH);
+        Directory.Move($"{featureFolder}/{FilesAndFolders.FEATURE_TEMPLATE_NAME}", $"{featureFolder}/{featureName}");
+    }
 }
