@@ -120,5 +120,60 @@ public static class CreationHelpers
 
     }
 
+    public static async Task HandleDomainCreation(string domainName, string directory)
+    {
+        var featureName = AnsiConsole.Prompt(new TextPrompt<string>("[grey][[Optional]]leave empty if you entered feature directory[/] What is the [green]Feature[/]?").AllowEmpty());
+        var featureFolder = string.Empty;
 
+        if (string.IsNullOrWhiteSpace(featureName))
+        {
+            featureFolder = directory;
+        }
+        else
+        {
+            var featuresFolder = FilesAndFolders.FEATURES_FOLDER_PATH(directory);
+            if (string.IsNullOrWhiteSpace(featuresFolder))
+            {
+                AnsiConsole.MarkupLine($"[red]No {FilesAndFolders.FEATURE_FOLDER_NAME} folder found.[/]");
+                AnsiConsole.MarkupLine($"[red]Make sure you are on project root directory.[/]");
+                throw new Exception();
+            }
+            featureFolder = Path.Combine(featuresFolder, featureName);
+        }
+
+
+        AnsiConsole.MarkupLine(string.Empty);
+        AnsiConsole.Status()
+                         .Spinner(Spinner.Known.Aesthetic)
+                         .SpinnerStyle(Style.Parse("green bold"))
+            .Start("Loading...", ctx =>
+            {
+                ctx.Status("Creating Domain Folder...");
+                Thread.Sleep(500);
+                FilesUtilsX.UnZipDomainTemplate(featureFolder);
+                AnsiConsole.MarkupLine("Feature Folder Created.");
+
+                ctx.Status("Creating Sub Directories...");
+                FilesUtilsX.RenameSubDirectories(featureFolder, domainName, FilesAndFolders.DOMAIN_TEMPLATE_NAME);
+                AnsiConsole.MarkupLine("Sub Directories Created.");
+
+                ctx.Status("Creating Files...");
+                //FilesUtils.RenameFeatureCollectionName(newFeaturePath, name);
+                FilesUtilsX.RenameFilesInDirectory(featureFolder, domainName, FilesAndFolders.DOMAIN_TEMPLATE_NAME);
+                FilesUtilsX.RenameContentInDirectory(featureFolder, featureName, FilesAndFolders.FEATURE_TEMPLATE_NAME);
+                FilesUtilsX.RenameContentInDirectory(featureFolder, domainName, FilesAndFolders.DOMAIN_TEMPLATE_NAME);
+                AnsiConsole.MarkupLine("Files Created.");
+
+                ctx.Status("Adding Domain to Services Collection...");
+                FilesUtilsX.AddDomainToServicesCollections(featureFolder, featureName, domainName);
+                AnsiConsole.MarkupLine("Domain Added to Services Collection.");
+
+                ctx.Status("Finishing Up...");
+                Thread.Sleep(500);
+            });
+
+
+
+
+    }
 }

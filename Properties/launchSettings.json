@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "Structor.CLI": {
+      "commandName": "Project",
+      "commandLineArgs": "new"
+    }
+  }
+}
